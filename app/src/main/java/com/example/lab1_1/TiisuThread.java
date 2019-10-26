@@ -1,39 +1,44 @@
 package com.example.lab1_1;
 
-import android.widget.TextView;
+import android.app.Activity;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class TiisuThread extends Thread {
+class TiisuThread extends Thread implements Runnable {
 
-    public String tiisuText;
+    Activity mActivity;
+    Handler mHandler;
 
+    TiisuThread(Activity mActivity, Handler mHandler) {
+        this.mActivity = ((MainActivity) mActivity);
+        this.mHandler = mHandler;
+    }
 
-
-    private volatile boolean exit = false;
 
     public void run() {
 
         try {
-            while(!exit) {
+            while(!Thread.interrupted()) {
                 LocalDateTime timeAtm = LocalDateTime.now();
                 DateTimeFormatter timeAtmForm = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-
                 String formattedDate = timeAtm.format(timeAtmForm);
 
-                tiisuText = formattedDate + "Tiisu, we want more!";
-
-
+                Message message = new Message();
+                Bundle bundle = new Bundle();
+                bundle.putString("key", formattedDate + " Tiisu we want more! \n");
+                message.setData(bundle);
+                mHandler.sendMessage(message);
                 sleep(5000);
             }
         }
-        catch(InterruptedException e) {
-            e.printStackTrace();
+        catch(Exception ex) {
+            Log.d("mita", ex.toString());
         }
     }
-
-    public void stopThread() {
-        exit = true;
-    }
 }
+
